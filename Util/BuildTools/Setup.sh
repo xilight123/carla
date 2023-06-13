@@ -14,6 +14,7 @@ eval set -- "$OPTS"
 
 PY_VERSION_LIST=3
 USE_CHRONO=false
+USE_FMCWLidar=true
 USE_PYTORCH=false
 
 while [[ $# -gt 0 ]]; do
@@ -512,7 +513,8 @@ fi
 mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
 cp -p -r ${EIGEN_INCLUDE}/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
 
-if ${USE_CHRONO} ; then
+# if ${USE_CHRONO} ; then
+if ${USE_FMCWLidar} ; then
 
   # ==============================================================================
   # -- Get Eigen headers (Chrono dependency) -------------------------------------
@@ -546,7 +548,9 @@ if ${USE_CHRONO} ; then
 
   mkdir -p ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
   cp -p -r ${EIGEN_INCLUDE}/* ${LIBCARLA_INSTALL_SERVER_FOLDER}/include/
+fi
 
+if ${USE_CHRONO} ; then
   # ==============================================================================
   # -- Get Chrono and compile it with libc++ -------------------------------------
   # ==============================================================================

@@ -69,4 +69,17 @@ struct CARLA_API FLidarDescription
 
   UPROPERTY(EditAnywhere)
   float NoiseStdDev = 0.0f;
+
+  //////////////////////////////
+  /////// For FMCW Lidar ///////
+  //////////////////////////////
+  /// Left laser angle, counts from vertical, negative values means on the left
+  /// side of dead ahead plumb line.
+  UPROPERTY(EditAnywhere)
+  float LeftFovLimit = -20.0f;
+
+  /// Right laser angle, counts from vertical, positive values means on the right
+  /// side of dead ahead plumb line.
+  UPROPERTY(EditAnywhere)
+  float RightFovLimit = 20.0f;
 };

@@ -971,6 +971,21 @@ void UActorBlueprintFunctionLibrary::MakeLidarDefinition(
   StdDevLidar.Id = TEXT("noise_stddev");
   StdDevLidar.Type = EActorAttributeType::Float;
   StdDevLidar.RecommendedValues = { TEXT("0.0") };
+  //////////////////////////////
+  /////// For FMCW Lidar ///////
+  //////////////////////////////
+  // Left FOV limit.
+  FActorVariation LeftFOV;
+  LeftFOV.Id = TEXT("left_fov");
+  LeftFOV.Type = EActorAttributeType::Float;
+  LeftFOV.RecommendedValues = { TEXT("-20.0") };
+  // Right FOV limit.
+  FActorVariation RightFOV;
+  RightFOV.Id = TEXT("right_fov");
+  RightFOV.Type = EActorAttributeType::Float;
+  RightFOV.RecommendedValues = { TEXT("20.0") };
+  //////////////////////////////
+  //////////////////////////////
 
   if (Id == "ray_cast") {
     Definition.Variations.Append({
@@ -997,6 +1012,24 @@ void UActorBlueprintFunctionLibrary::MakeLidarDefinition(
       UpperFOV,
       LowerFOV,
       HorizontalFOV});
+  }
+  else if (Id == "ray_cast_fmcw") {
+    Definition.Variations.Append({
+      Channels,
+      Range,
+      PointsPerSecond,
+      Frequency,
+      UpperFOV,
+      LowerFOV,
+      AtmospAttenRate,
+      NoiseSeed,
+      DropOffGenRate,
+      DropOffIntensityLimit,
+      DropOffAtZeroIntensity,
+      StdDevLidar,
+      HorizontalFOV,
+      LeftFOV,
+      RightFOV});
   }
   else {
     DEBUG_ASSERT(false);
@@ -1665,6 +1698,15 @@ void UActorBlueprintFunctionLibrary::SetLidar(
       RetrieveActorAttributeToFloat("dropoff_zero_intensity", Description.Variations, Lidar.DropOffAtZeroIntensity);
   Lidar.NoiseStdDev =
       RetrieveActorAttributeToFloat("noise_stddev", Description.Variations, Lidar.NoiseStdDev);
+  //////////////////////////////
+  /////// For FMCW Lidar ///////
+  //////////////////////////////
+  Lidar.LeftFovLimit =
+      RetrieveActorAttributeToFloat("left_fov", Description.Variations, Lidar.LeftFovLimit);
+  Lidar.RightFovLimit =
+      RetrieveActorAttributeToFloat("right_fov", Description.Variations, Lidar.RightFovLimit);
+  //////////////////////////////
+  //////////////////////////////
 }
 
 void UActorBlueprintFunctionLibrary::SetGnss(

@@ -17,6 +17,7 @@
 #include <carla/sensor/data/LaneInvasionEvent.h>
 #include <carla/sensor/data/LidarMeasurement.h>
 #include <carla/sensor/data/SemanticLidarMeasurement.h>
+#include <carla/sensor/data/FMCWLidarMeasurement.h>
 #include <carla/sensor/data/GnssMeasurement.h>
 #include <carla/sensor/data/RadarMeasurement.h>
 #include <carla/sensor/data/DVSEventArray.h>
@@ -62,6 +63,14 @@ namespace data {
 
   std::ostream &operator<<(std::ostream &out, const SemanticLidarMeasurement &meas) {
     out << "SemanticLidarMeasurement(frame=" << std::to_string(meas.GetFrame())
+        << ", timestamp=" << std::to_string(meas.GetTimestamp())
+        << ", number_of_points=" << std::to_string(meas.size())
+        << ')';
+    return out;
+  }
+
+  std::ostream &operator<<(std::ostream &out, const FMCWLidarMeasurement &meas) {
+    out << "FMCWLidarMeasurement(frame=" << std::to_string(meas.GetFrame())
         << ", timestamp=" << std::to_string(meas.GetTimestamp())
         << ", number_of_points=" << std::to_string(meas.size())
         << ')';
@@ -162,6 +171,27 @@ namespace data {
         << ", cos_inc_angle=" << std::to_string(det.cos_inc_angle)
         << ", object_idx=" << std::to_string(det.object_idx)
         << ", object_tag=" << std::to_string(det.object_tag)
+        << ')';
+    return out;
+  }
+
+  std::ostream &operator<<(std::ostream &out, const FMCWLidarDetection &det) {
+    out << "FMCWLidarDetection(x=" << std::to_string(det.point.x)
+        << ", y=" << std::to_string(det.point.y)
+        << ", z=" << std::to_string(det.point.z)
+        << ", ring=" << std::to_string(det.ring)
+        << ", column=" << std::to_string(det.column)
+        << ", time=" << std::to_string(det.time)
+        << ", velocity=" << std::to_string(det.velocity)
+        << ", object_idx=" << std::to_string(det.object_idx)
+        << ", object_tag=" << std::to_string(det.object_tag)
+        << ", bbox_x=" << std::to_string(det.bbox_x)
+        << ", bbox_y=" << std::to_string(det.bbox_y)
+        << ", bbox_z=" << std::to_string(det.bbox_z)
+        << ", bbox_w=" << std::to_string(det.bbox_w)
+        << ", bbox_l=" << std::to_string(det.bbox_l)
+        << ", bbox_h=" << std::to_string(det.bbox_h)
+        << ", rotation_z=" << std::to_string(det.rotation_z)
         << ')';
     return out;
   }
@@ -474,6 +504,23 @@ void export_sensor_data() {
     .def(self_ns::str(self_ns::self))
   ;
 
+  class_<csd::FMCWLidarMeasurement, bases<cs::SensorData>, boost::noncopyable, boost::shared_ptr<csd::FMCWLidarMeasurement>>("FMCWLidarMeasurement", no_init)
+    .add_property("horizontal_angle", &csd::FMCWLidarMeasurement::GetHorizontalAngle)
+    .add_property("channels", &csd::FMCWLidarMeasurement::GetChannelCount)
+    .add_property("raw_data", &GetRawDataAsBuffer<csd::FMCWLidarMeasurement>)
+    .def("get_point_count", &csd::FMCWLidarMeasurement::GetPointCount, (arg("channel")))
+    .def("save_to_disk", &SavePointCloudToDisk<csd::FMCWLidarMeasurement>, (arg("path")))
+    .def("__len__", &csd::FMCWLidarMeasurement::size)
+    .def("__iter__", iterator<csd::FMCWLidarMeasurement>())
+    .def("__getitem__", +[](const csd::FMCWLidarMeasurement &self, size_t pos) -> csd::FMCWLidarDetection {
+      return self.at(pos);
+    })
+    .def("__setitem__", +[](csd::FMCWLidarMeasurement &self, size_t pos, const csd::FMCWLidarDetection &detection) {
+      self.at(pos) = detection;
+    })
+    .def(self_ns::str(self_ns::self))
+  ;
+
   class_<csd::CollisionEvent, bases<cs::SensorData>, boost::noncopyable, boost::shared_ptr<csd::CollisionEvent>>("CollisionEvent", no_init)
     .add_property("actor", &csd::CollisionEvent::GetActor)
     .add_property("other_actor", &csd::CollisionEvent::GetOtherActor)
@@ -541,6 +588,24 @@ void export_sensor_data() {
     .def_readwrite("cos_inc_angle", &csd::SemanticLidarDetection::cos_inc_angle)
     .def_readwrite("object_idx", &csd::SemanticLidarDetection::object_idx)
     .def_readwrite("object_tag", &csd::SemanticLidarDetection::object_tag)
+    .def(self_ns::str(self_ns::self))
+  ;
+
+  class_<csd::FMCWLidarDetection>("FMCWLidarDetection")
+    .def_readwrite("point", &csd::FMCWLidarDetection::point)
+    .def_readwrite("ring", &csd::FMCWLidarDetection::ring)
+    .def_readwrite("column", &csd::FMCWLidarDetection::column)
+    .def_readwrite("time", &csd::FMCWLidarDetection::time)
+    .def_readwrite("velocity", &csd::FMCWLidarDetection::velocity)
+    .def_readwrite("object_idx", &csd::FMCWLidarDetection::object_idx)
+    .def_readwrite("object_tag", &csd::FMCWLidarDetection::object_tag)
+    .def_readwrite("bbox_x", &csd::FMCWLidarDetection::bbox_x)
+    .def_readwrite("bbox_y", &csd::FMCWLidarDetection::bbox_y)
+    .def_readwrite("bbox_z", &csd::FMCWLidarDetection::bbox_z)
+    .def_readwrite("bbox_w", &csd::FMCWLidarDetection::bbox_w)
+    .def_readwrite("bbox_l", &csd::FMCWLidarDetection::bbox_l)
+    .def_readwrite("bbox_h", &csd::FMCWLidarDetection::bbox_h)
+    .def_readwrite("rotation_z", &csd::FMCWLidarDetection::rotation_z)
     .def(self_ns::str(self_ns::self))
   ;
 

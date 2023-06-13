@@ -16,6 +16,7 @@
 #include "Landscape.h"
 #include "Scalability.h"
 
+#include "Carla/Game/CarlaGameInstance.h"
 
 static constexpr float CARLA_SETTINGS_MAX_SCALE_SIZE = 50.0f;
 
